@@ -76,7 +76,7 @@ class JSON_API Exception : public std::exception {
 public:
   Exception(String msg);
   ~Exception() JSONCPP_NOEXCEPT JSONCPP_OVERRIDE;
-  char const* what() const JSONCPP_NOEXCEPT JSONCPP_OVERRIDE;
+  char const *what() const JSONCPP_NOEXCEPT JSONCPP_OVERRIDE;
 
 protected:
   String msg_;
@@ -90,7 +90,7 @@ protected:
  */
 class JSON_API RuntimeError : public Exception {
 public:
-  RuntimeError(String const& msg);
+  RuntimeError(String const &msg);
 };
 
 /** Exceptions thrown by JSON_ASSERT/JSON_FAIL macros.
@@ -101,14 +101,14 @@ public:
  */
 class JSON_API LogicError : public Exception {
 public:
-  LogicError(String const& msg);
+  LogicError(String const &msg);
 };
 #endif
 
 /// used internally
-JSONCPP_NORETURN void throwRuntimeError(String const& msg);
+JSONCPP_NORETURN void throwRuntimeError(String const &msg);
 /// used internally
-JSONCPP_NORETURN void throwLogicError(String const& msg);
+JSONCPP_NORETURN void throwLogicError(String const &msg);
 
 /** \brief Type of the value held by a Value object.
  */
@@ -154,14 +154,14 @@ enum PrecisionType {
  */
 class JSON_API StaticString {
 public:
-  JSONCPP_OP_EXPLICIT StaticString(const char* czstring) : c_str_(czstring) {}
+  JSONCPP_OP_EXPLICIT StaticString(const char *czstring) : c_str_(czstring) {}
 
-  operator const char*() const { return c_str_; }
+  operator const char *() const { return c_str_; }
 
-  const char* c_str() const { return c_str_; }
+  const char *c_str() const { return c_str_; }
 
 private:
-  const char* c_str_;
+  const char *c_str_;
 };
 
 /** \brief Represents a <a HREF="http://www.json.org">JSON</a> value.
@@ -220,12 +220,12 @@ public:
 
 #if JSON_USE_NULLREF
   // Binary compatibility kludges, do not use.
-  static const Value& null;
-  static const Value& nullRef;
+  static const Value &null;
+  static const Value &nullRef;
 #endif
 
   // null and nullRef are deprecated, use this instead.
-  static Value const& nullSingleton();
+  static Value const &nullSingleton();
 
   /// Minimum signed integer value that can be stored in a Json::Value.
   static JSONCPP_CONST LargestInt minLargestInt =
@@ -256,7 +256,11 @@ public:
   // The constant is hard-coded because some compiler have trouble
   // converting Value::maxUInt64 to a double correctly (AIX/xlC).
   // Assumes that UInt64 is a 64 bits integer.
+#if _MSC_VER > 1600
   static JSONCPP_CONST double maxUInt64AsDouble = 18446744073709551615.0;
+#else
+  static JSONCPP_CONST double maxUInt64AsDouble;
+#endif
 // Workaround for bug in the NVIDIAs CUDA 9.1 nvcc compiler
 // when using gcc and clang backend compilers.  CZString
 // cannot be defined as private.  See issue #486
@@ -270,33 +274,33 @@ private:
   public:
     enum DuplicationPolicy { noDuplication = 0, duplicate, duplicateOnCopy };
     CZString(ArrayIndex index);
-    CZString(char const* str, unsigned length, DuplicationPolicy allocate);
-    CZString(CZString const& other);
+    CZString(char const *str, unsigned length, DuplicationPolicy allocate);
+    CZString(CZString const &other);
 #if JSONCPP_CXX_STD_11
-    CZString(CZString&& other);
+    CZString(CZString &&other);
 #endif
     ~CZString();
-    CZString& operator=(const CZString& other);
+    CZString &operator=(const CZString &other);
 #if JSONCPP_CXX_STD_11
-    CZString& operator=(CZString&& other);
+    CZString &operator=(CZString &&other);
 #endif
-    bool operator<(CZString const& other) const;
-    bool operator==(CZString const& other) const;
+    bool operator<(CZString const &other) const;
+    bool operator==(CZString const &other) const;
     ArrayIndex index() const;
     // const char* c_str() const; ///< \deprecated
-    char const* data() const;
+    char const *data() const;
     unsigned length() const;
     bool isStaticString() const;
 
   private:
-    void swap(CZString& other);
+    void swap(CZString &other);
 
     struct StringStorage {
       unsigned policy_ : 2;
       unsigned length_ : 30; // 1GB max
     };
 
-    char const* cstr_; // actually, a prefixed string, unless policy is noDup
+    char const *cstr_; // actually, a prefixed string, unless policy is noDup
     union {
       ArrayIndex index_;
       StringStorage storage_;
@@ -332,8 +336,8 @@ public:
   Value(UInt64 value);
 #endif // if defined(JSON_HAS_INT64)
   Value(double value);
-  Value(const char* value); ///< Copy til first 0. (NULL causes to seg-fault.)
-  Value(const char* begin, const char* end); ///< Copy all, incl zeroes.
+  Value(const char *value); ///< Copy til first 0. (NULL causes to seg-fault.)
+  Value(const char *begin, const char *end); ///< Copy all, incl zeroes.
   /**
    * \brief Constructs a value from a static string.
    *
@@ -351,44 +355,44 @@ public:
    *   Json::Value aValue(foo);
    *   \endcode
    */
-  Value(const StaticString& value);
-  Value(const String& value);
+  Value(const StaticString &value);
+  Value(const String &value);
   Value(bool value);
-  Value(const Value& other);
+  Value(const Value &other);
 #if JSONCPP_CXX_STD_11
-  Value(Value&& other);
+  Value(Value &&other);
 #endif
   ~Value();
 
   /// \note Overwrite existing comments. To preserve comments, use
   /// #swapPayload().
-  Value& operator=(const Value& other);
+  Value &operator=(const Value &other);
 #if JSONCPP_CXX_STD_11
-  Value& operator=(Value&& other);
+  Value &operator=(Value &&other);
 #endif
 
   /// Swap everything.
-  void swap(Value& other);
+  void swap(Value &other);
   /// Swap values but leave comments and source offsets in place.
-  void swapPayload(Value& other);
+  void swapPayload(Value &other);
 
   /// copy everything.
-  void copy(const Value& other);
+  void copy(const Value &other);
   /// copy values but leave comments and source offsets in place.
-  void copyPayload(const Value& other);
+  void copyPayload(const Value &other);
 
   ValueType type() const;
 
   /// Compare payload only, not comments etc.
-  bool operator<(const Value& other) const;
-  bool operator<=(const Value& other) const;
-  bool operator>=(const Value& other) const;
-  bool operator>(const Value& other) const;
-  bool operator==(const Value& other) const;
-  bool operator!=(const Value& other) const;
-  int compare(const Value& other) const;
+  bool operator<(const Value &other) const;
+  bool operator<=(const Value &other) const;
+  bool operator>=(const Value &other) const;
+  bool operator>(const Value &other) const;
+  bool operator==(const Value &other) const;
+  bool operator!=(const Value &other) const;
+  int compare(const Value &other) const;
 
-  const char* asCString() const; ///< Embedded zeroes could cause you trouble!
+  const char *asCString() const; ///< Embedded zeroes could cause you trouble!
 #if JSONCPP_USING_SECURE_MEMORY
   unsigned getCStringLength() const; // Allows you to understand the length of
                                      // the CString
@@ -397,7 +401,7 @@ public:
   /** Get raw char* of string-value.
    *  \return false if !string. (Seg-fault if str or end are NULL.)
    */
-  bool getString(char const** begin, char const** end) const;
+  bool getString(char const **begin, char const **end) const;
   Int asInt() const;
   UInt asUInt() const;
 #if defined(JSON_HAS_INT64)
@@ -457,51 +461,51 @@ public:
   /// its size is index+1.
   /// (You may need to say 'value[0u]' to get your compiler to distinguish
   /// this from the operator[] which takes a string.)
-  Value& operator[](ArrayIndex index);
-  Value& operator[](int index);
+  Value &operator[](ArrayIndex index);
+  Value &operator[](int index);
   //@}
 
   //@{
   /// Access an array element (zero based index).
   /// (You may need to say 'value[0u]' to get your compiler to distinguish
   /// this from the operator[] which takes a string.)
-  const Value& operator[](ArrayIndex index) const;
-  const Value& operator[](int index) const;
+  const Value &operator[](ArrayIndex index) const;
+  const Value &operator[](int index) const;
   //@}
 
   /// If the array contains at least index+1 elements, returns the element
   /// value, otherwise returns defaultValue.
-  Value get(ArrayIndex index, const Value& defaultValue) const;
+  Value get(ArrayIndex index, const Value &defaultValue) const;
   /// Return true if index < size().
   bool isValidIndex(ArrayIndex index) const;
   /// \brief Append value to array at the end.
   ///
   /// Equivalent to jsonvalue[jsonvalue.size()] = value;
-  Value& append(const Value& value);
+  Value &append(const Value &value);
 #if JSONCPP_CXX_STD_11
-  Value& append(Value&& value);
+  Value &append(Value &&value);
 #endif
 
   /// \brief Insert value in array at specific index
-  bool insert(ArrayIndex index, const Value& newValue);
+  bool insert(ArrayIndex index, const Value &newValue);
 #if JSONCPP_CXX_STD_11
-  bool insert(ArrayIndex index, Value&& newValue);
+  bool insert(ArrayIndex index, Value &&newValue);
 #endif
 
   /// Access an object value by name, create a null member if it does not exist.
   /// \note Because of our implementation, keys are limited to 2^30 -1 chars.
   /// Exceeding that will cause an exception.
-  Value& operator[](const char* key);
+  Value &operator[](const char *key);
   /// Access an object value by name, returns null if there is no member with
   /// that name.
-  const Value& operator[](const char* key) const;
+  const Value &operator[](const char *key) const;
   /// Access an object value by name, create a null member if it does not exist.
   /// \param key may contain embedded nulls.
-  Value& operator[](const String& key);
+  Value &operator[](const String &key);
   /// Access an object value by name, returns null if there is no member with
   /// that name.
   /// \param key may contain embedded nulls.
-  const Value& operator[](const String& key) const;
+  const Value &operator[](const String &key) const;
   /** \brief Access an object value by name, create a null member if it does not
    * exist.
    *
@@ -514,64 +518,64 @@ public:
    *   object[code] = 1234;
    *   \endcode
    */
-  Value& operator[](const StaticString& key);
+  Value &operator[](const StaticString &key);
   /// Return the member named key if it exist, defaultValue otherwise.
   /// \note deep copy
-  Value get(const char* key, const Value& defaultValue) const;
+  Value get(const char *key, const Value &defaultValue) const;
   /// Return the member named key if it exist, defaultValue otherwise.
   /// \note deep copy
   /// \note key may contain embedded nulls.
-  Value get(const char* begin, const char* end,
-            const Value& defaultValue) const;
+  Value get(const char *begin, const char *end,
+            const Value &defaultValue) const;
   /// Return the member named key if it exist, defaultValue otherwise.
   /// \note deep copy
   /// \param key may contain embedded nulls.
-  Value get(const String& key, const Value& defaultValue) const;
+  Value get(const String &key, const Value &defaultValue) const;
   /// Most general and efficient version of isMember()const, get()const,
   /// and operator[]const
   /// \note As stated elsewhere, behavior is undefined if (end-begin) >= 2^30
-  Value const* find(char const* begin, char const* end) const;
+  Value const *find(char const *begin, char const *end) const;
   /// Most general and efficient version of object-mutators.
   /// \note As stated elsewhere, behavior is undefined if (end-begin) >= 2^30
   /// \return non-zero, but JSON_ASSERT if this is neither object nor nullValue.
-  Value* demand(char const* begin, char const* end);
+  Value *demand(char const *begin, char const *end);
   /// \brief Remove and return the named member.
   ///
   /// Do nothing if it did not exist.
   /// \pre type() is objectValue or nullValue
   /// \post type() is unchanged
-  void removeMember(const char* key);
+  void removeMember(const char *key);
   /// Same as removeMember(const char*)
   /// \param key may contain embedded nulls.
-  void removeMember(const String& key);
+  void removeMember(const String &key);
   /// Same as removeMember(const char* begin, const char* end, Value* removed),
   /// but 'key' is null-terminated.
-  bool removeMember(const char* key, Value* removed);
+  bool removeMember(const char *key, Value *removed);
   /** \brief Remove the named map member.
    *
    *  Update 'removed' iff removed.
    *  \param key may contain embedded nulls.
    *  \return true iff removed (no exceptions)
    */
-  bool removeMember(String const& key, Value* removed);
+  bool removeMember(String const &key, Value *removed);
   /// Same as removeMember(String const& key, Value* removed)
-  bool removeMember(const char* begin, const char* end, Value* removed);
+  bool removeMember(const char *begin, const char *end, Value *removed);
   /** \brief Remove the indexed array element.
    *
    *  O(n) expensive operations.
    *  Update 'removed' iff removed.
    *  \return true if removed (no exceptions)
    */
-  bool removeIndex(ArrayIndex index, Value* removed);
+  bool removeIndex(ArrayIndex index, Value *removed);
 
   /// Return true if the object has a member named key.
   /// \note 'key' must be null-terminated.
-  bool isMember(const char* key) const;
+  bool isMember(const char *key) const;
   /// Return true if the object has a member named key.
   /// \param key may contain embedded nulls.
-  bool isMember(const String& key) const;
+  bool isMember(const String &key) const;
   /// Same as isMember(String const& key)const
-  bool isMember(const char* begin, const char* end) const;
+  bool isMember(const char *begin, const char *end) const;
 
   /// \brief Return a list of the member names.
   ///
@@ -582,11 +586,11 @@ public:
 
   /// \deprecated Always pass len.
   JSONCPP_DEPRECATED("Use setComment(String const&) instead.")
-  void setComment(const char* comment, CommentPlacement placement);
+  void setComment(const char *comment, CommentPlacement placement);
   /// Comments must be //... or /* ... */
-  void setComment(const char* comment, size_t len, CommentPlacement placement);
+  void setComment(const char *comment, size_t len, CommentPlacement placement);
   /// Comments must be //... or /* ... */
-  void setComment(const String& comment, CommentPlacement placement);
+  void setComment(const String &comment, CommentPlacement placement);
   bool hasComment(CommentPlacement placement) const;
   /// Include delimiters and embedded newlines.
   String getComment(CommentPlacement placement) const;
@@ -614,12 +618,12 @@ private:
   void setIsAllocated(bool v) { bits_.allocated_ = v; }
 
   void initBasic(ValueType type, bool allocated = false);
-  void dupPayload(const Value& other);
+  void dupPayload(const Value &other);
   void releasePayload();
-  void dupMeta(const Value& other);
+  void dupMeta(const Value &other);
 
-  Value& resolveReference(const char* key);
-  Value& resolveReference(const char* key, const char* end);
+  Value &resolveReference(const char *key);
+  Value &resolveReference(const char *key, const char *end);
 
   // struct MemberNamesTransform
   //{
@@ -635,8 +639,8 @@ private:
     LargestUInt uint_;
     double real_;
     bool bool_;
-    char* string_; // if allocated_, ptr to { unsigned, char[] }.
-    ObjectValues* map_;
+    char *string_; // if allocated_, ptr to { unsigned, char[] }.
+    ObjectValues *map_;
   } value_;
 
   struct Bits {
@@ -649,8 +653,8 @@ private:
   class Comments {
   public:
     Comments() {}
-    Comments(const Comments& that);
-    Comments& operator=(const Comments& that);
+    Comments(const Comments &that);
+    Comments &operator=(const Comments &that);
     bool has(CommentPlacement slot) const;
     String get(CommentPlacement slot) const;
     void set(CommentPlacement slot, String s);
@@ -692,7 +696,7 @@ template <> inline bool Value::is<String>() const { return isString(); }
 /// These `as` specializations are type conversions, and do not have a
 /// corresponding `is`.
 template <> inline float Value::as<float>() const { return asFloat(); }
-template <> inline const char* Value::as<const char*>() const {
+template <> inline const char *Value::as<const char *>() const {
   return asCString();
 }
 
@@ -705,7 +709,7 @@ public:
 
   PathArgument();
   PathArgument(ArrayIndex index);
-  PathArgument(const char* key);
+  PathArgument(const char *key);
   PathArgument(String key);
 
 private:
@@ -728,26 +732,26 @@ private:
  */
 class JSON_API Path {
 public:
-  Path(const String& path, const PathArgument& a1 = PathArgument(),
-       const PathArgument& a2 = PathArgument(),
-       const PathArgument& a3 = PathArgument(),
-       const PathArgument& a4 = PathArgument(),
-       const PathArgument& a5 = PathArgument());
+  Path(const String &path, const PathArgument &a1 = PathArgument(),
+       const PathArgument &a2 = PathArgument(),
+       const PathArgument &a3 = PathArgument(),
+       const PathArgument &a4 = PathArgument(),
+       const PathArgument &a5 = PathArgument());
 
-  const Value& resolve(const Value& root) const;
-  Value resolve(const Value& root, const Value& defaultValue) const;
+  const Value &resolve(const Value &root) const;
+  Value resolve(const Value &root, const Value &defaultValue) const;
   /// Creates the "path" to access the specified node and returns a reference on
   /// the node.
-  Value& make(Value& root) const;
+  Value &make(Value &root) const;
 
 private:
-  typedef std::vector<const PathArgument*> InArgs;
+  typedef std::vector<const PathArgument *> InArgs;
   typedef std::vector<PathArgument> Args;
 
-  void makePath(const String& path, const InArgs& in);
-  void addPathInArg(const String& path, const InArgs& in,
-                    InArgs::const_iterator& itInArg, PathArgument::Kind kind);
-  static void invalidPath(const String& path, int location);
+  void makePath(const String &path, const InArgs &in);
+  void addPathInArg(const String &path, const InArgs &in,
+                    InArgs::const_iterator &itInArg, PathArgument::Kind kind);
+  static void invalidPath(const String &path, int location);
 
   Args args_;
 };
@@ -762,11 +766,11 @@ public:
   typedef int difference_type;
   typedef ValueIteratorBase SelfType;
 
-  bool operator==(const SelfType& other) const { return isEqual(other); }
+  bool operator==(const SelfType &other) const { return isEqual(other); }
 
-  bool operator!=(const SelfType& other) const { return !isEqual(other); }
+  bool operator!=(const SelfType &other) const { return !isEqual(other); }
 
-  difference_type operator-(const SelfType& other) const {
+  difference_type operator-(const SelfType &other) const {
     return other.computeDistance(*this);
   }
 
@@ -788,11 +792,11 @@ public:
   /// \deprecated This cannot be used for UTF-8 strings, since there can be
   /// embedded nulls.
   JSONCPP_DEPRECATED("Use `key = name();` instead.")
-  char const* memberName() const;
+  char const *memberName() const;
   /// Return the member name of the referenced Value, or NULL if it is not an
   /// objectValue.
   /// \note Better version than memberName(). Allows embedded nulls.
-  char const* memberName(char const** end) const;
+  char const *memberName(char const **end) const;
 
 protected:
   /*! Internal utility functions to assist with implementing
@@ -801,18 +805,18 @@ protected:
    *   current_ member variable in a way that can often be
    *   optimized away by the compiler.
    */
-  const Value& deref() const;
-  Value& deref();
+  const Value &deref() const;
+  Value &deref();
 
   void increment();
 
   void decrement();
 
-  difference_type computeDistance(const SelfType& other) const;
+  difference_type computeDistance(const SelfType &other) const;
 
-  bool isEqual(const SelfType& other) const;
+  bool isEqual(const SelfType &other) const;
 
-  void copy(const SelfType& other);
+  void copy(const SelfType &other);
 
 private:
   Value::ObjectValues::iterator current_;
@@ -824,7 +828,7 @@ public:
   // than earlier. No idea why.
   ValueIteratorBase();
   JSONCPP_OP_EXPLICIT
-  ValueIteratorBase(const Value::ObjectValues::iterator& current);
+  ValueIteratorBase(const Value::ObjectValues::iterator &current);
 };
 
 /** \brief const iterator for object and array value.
@@ -837,21 +841,21 @@ public:
   typedef const Value value_type;
   // typedef unsigned int size_t;
   // typedef int difference_type;
-  typedef const Value& reference;
-  typedef const Value* pointer;
+  typedef const Value &reference;
+  typedef const Value *pointer;
   typedef ValueConstIterator SelfType;
 
   ValueConstIterator();
-  ValueConstIterator(ValueIterator const& other);
+  ValueConstIterator(ValueIterator const &other);
 
 private:
   /*! \internal Use by Value to create an iterator.
    */
   JSONCPP_OP_EXPLICIT
-  ValueConstIterator(const Value::ObjectValues::iterator& current);
+  ValueConstIterator(const Value::ObjectValues::iterator &current);
 
 public:
-  SelfType& operator=(const ValueIteratorBase& other);
+  SelfType &operator=(const ValueIteratorBase &other);
 
   SelfType operator++(int) {
     SelfType temp(*this);
@@ -865,12 +869,12 @@ public:
     return temp;
   }
 
-  SelfType& operator--() {
+  SelfType &operator--() {
     decrement();
     return *this;
   }
 
-  SelfType& operator++() {
+  SelfType &operator++() {
     increment();
     return *this;
   }
@@ -889,22 +893,22 @@ public:
   typedef Value value_type;
   typedef unsigned int size_t;
   typedef int difference_type;
-  typedef Value& reference;
-  typedef Value* pointer;
+  typedef Value &reference;
+  typedef Value *pointer;
   typedef ValueIterator SelfType;
 
   ValueIterator();
-  JSONCPP_OP_EXPLICIT ValueIterator(const ValueConstIterator& other);
-  ValueIterator(const ValueIterator& other);
+  JSONCPP_OP_EXPLICIT ValueIterator(const ValueConstIterator &other);
+  ValueIterator(const ValueIterator &other);
 
 private:
   /*! \internal Use by Value to create an iterator.
    */
   JSONCPP_OP_EXPLICIT
-  ValueIterator(const Value::ObjectValues::iterator& current);
+  ValueIterator(const Value::ObjectValues::iterator &current);
 
 public:
-  SelfType& operator=(const SelfType& other);
+  SelfType &operator=(const SelfType &other);
 
   SelfType operator++(int) {
     SelfType temp(*this);
@@ -918,12 +922,12 @@ public:
     return temp;
   }
 
-  SelfType& operator--() {
+  SelfType &operator--() {
     decrement();
     return *this;
   }
 
-  SelfType& operator++() {
+  SelfType &operator++() {
     increment();
     return *this;
   }
@@ -937,7 +941,7 @@ public:
   pointer operator->() { return &deref(); }
 };
 
-inline void swap(Value& a, Value& b) { a.swap(b); }
+inline void swap(Value &a, Value &b) { a.swap(b); }
 
 } // namespace Json
 

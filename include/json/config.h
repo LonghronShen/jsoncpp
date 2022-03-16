@@ -59,11 +59,54 @@
 #if defined(_MSC_VER) && _MSC_VER < 1900
 // As recommended at
 // https://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010
-extern JSON_API int msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
-                                              const char* format, ...);
+extern JSON_API int msvc_pre1900_c99_snprintf(char *outBuf, size_t size,
+                                              const char *format, ...);
 #define jsoncpp_snprintf msvc_pre1900_c99_snprintf
 #else
 #define jsoncpp_snprintf std::snprintf
+#endif
+
+#if defined(_MSC_VER) && _MSC_VER < 1700
+#include <exception>
+#include <stdexcept>
+
+#include <float.h>
+
+#ifndef FP_INFINITE
+#define FP_INFINITE _INFCODE
+#endif
+
+#ifndef FP_NAN
+#define FP_NAN _NANCODE
+#endif
+
+#ifndef FP_NORMAL
+#define FP_NORMAL _FINITE
+#endif
+
+#ifndef FP_SUBNORMAL
+#define FP_SUBNORMAL _DENORM
+#endif
+
+#ifndef FP_ZERO
+#define FP_ZERO 0
+#endif
+
+#ifndef fpclassify
+namespace std {
+inline int fpclassify(float arg) { return _fpclass((double)arg); }
+
+inline int fpclassify(double arg) { return _fpclass(arg); }
+
+inline int fpclassify(long double arg) {
+  throw std::exception("not supported");
+}
+
+template <typename IntegralType> int fpclassify(IntegralType arg) {
+  return _fpclass((double)arg);
+}
+} // namespace std
+#endif
 #endif
 
 // If JSON_NO_INT64 is defined, then Json only support C++ "int" type for
@@ -71,7 +114,7 @@ extern JSON_API int msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
 // Storages, and 64 bits integer support is disabled.
 // #define JSON_NO_INT64 1
 
-#if __cplusplus >= 201103L || defined(_MSC_VER)
+#if __cplusplus >= 201103L
 #define JSONCPP_OP_EXPLICIT explicit
 #else
 #define JSONCPP_OP_EXPLICIT

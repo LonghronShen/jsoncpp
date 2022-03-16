@@ -1237,7 +1237,7 @@ void StreamWriterBuilder::setDefaults(Json::Value* settings) {
   (*settings)["enableYAMLCompatibility"] = false;
   (*settings)["dropNullPlaceholders"] = false;
   (*settings)["useSpecialFloats"] = false;
-  (*settings)["emitUTF8"] = false;
+  (*settings)["emitUTF8"] = true;
   (*settings)["precision"] = 17;
   (*settings)["precisionType"] = "significant";
   //! [StreamWriterBuilderDefaults]
